@@ -65,20 +65,21 @@ class AppService extends GetxService {
     _storage = box();
 
     // CONFIG
-    var _sConfig = _storage!.read('kConfig');
+    await _storage!.write('kConfig', null);
+    var _sConfig = await _storage!.read('kConfig');
     if (_sConfig != null) {
       print('appService: fetching config');
       _config = Config.fromJson(jsonDecode(_sConfig));
     }
 
     // LOCALE
-    var _sLocale = _storage!.read('kLocale');
+    var _sLocale = await _storage!.read('kLocale');
     if (_sLocale != null) {
       await updateLocale(_sLocale);
     }
 
     // USER
-    var _sUser = _storage!.read('kUser');
+    var _sUser = await _storage!.read('kUser');
     if (_sUser != null) {
       user(User.fromJson(jsonDecode(_sUser)));
     }

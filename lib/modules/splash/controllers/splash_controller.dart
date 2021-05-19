@@ -6,26 +6,43 @@ import 'package:getx_test/routes.dart';
 
 class SplashController extends Controller {
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
+
+    await _manageConfig();
   }
 
   @override
-  void onReady() async {
+  void onReady() {
     super.onReady();
-
-    if (app.config == null) {
-      Get.lazyPut<ConfigProvider>(() => ConfigProvider());
-      await fetchConfig();
-    } else {
-      app.state = AppState.DONE;
-      await Get.toNamed(Routes.HOME);
-    }
   }
 
   @override
   void onClose() {
     super.onClose();
+  }
+
+  Future<void> _manageConfig() async {
+    if (app.config == null) {
+      Get.lazyPut<ConfigProvider>(() => ConfigProvider());
+      await fetchConfig();
+    }
+
+    app.state = AppState.DONE;
+    await Get.toNamed(Routes.HOME);
+  }
+
+  Future<void> fetchConfig() async {
+    print('splashController: fetching config');
+    var _provider = Get.find<ConfigProvider>();
+
+    await _provider.getConfig().then((r) {
+      if (r.status.hasError) {
+        return;
+      }
+
+      app.setConfig(r.body!);
+    });
   }
 
   goToNext() async {
@@ -47,19 +64,5 @@ class SplashController extends Controller {
     }
 
     return Get.toNamed('');
-  }
-
-  Future<void> fetchConfig() async {
-    print('splashController: fetching config');
-    var _provider = Get.find<ConfigProvider>();
-
-    await _provider.getConfig().then((r) {
-      if (r.status.hasError) {
-        return;
-      }
-
-      app.setConfig(r.body!);
-      app.state = AppState.DONE;
-    });
   }
 }
